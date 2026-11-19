@@ -94,4 +94,28 @@ class ProductControllerIT {
         mockMvc.perform(get("/api/products/9999"))
                 .andExpect(status().is5xxServerError());
     }
+        @Test
+    @DisplayName("POST /api/products — debe ignorar el id enviado por el cliente (DTO)")
+    void shouldIgnoreClientProvidedId() throws Exception {
+        // ARRANGE: el cliente intenta imponer el id 999
+        String json = """
+                {
+                  "id": 999,
+                  "name": "Teclado Mecánico",
+                  "price": 180.00,
+                  "stock": 15
+                }
+                """;
+
+        // ACT & ASSERT
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(not(999)))
+                .andExpect(jsonPath("$.name").value("Teclado Mecánico"));
+
+        // El producto 999 no debe existir en la base de datos
+        org.junit.jupiter.api.Assertions.assertTrue(productRepository.findById(999L).isEmpty());
+    }
 }
