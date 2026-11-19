@@ -19,10 +19,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.save(product));
-    }
+public ResponseEntity<Product> create(@RequestBody ProductRequest request) {
+    Product product = Product.builder()
+            .name(request.getName())
+            .price(request.getPrice())
+            .stock(request.getStock())
+            .build();
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(productService.save(product));
+}
 
     @GetMapping
     public ResponseEntity<List<Product>> findAll() {
